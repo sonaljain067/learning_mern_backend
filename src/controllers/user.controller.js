@@ -4,11 +4,16 @@ import { ApiResponse } from "../utils/ApiResponse.js"
 import { isValidEmail } from "../utils/validateEmail.js"
 import { User } from "../models/user.model.js"
 import { uploadOnCloudinary } from "../utils/cloudinary.js"
+import fs from "fs"
 
 const registerUser = asyncHandler(async(req, res) => {
     // input from frontend 
-    const { username, firstName, lastName, phoneNumber, email, password} = req.body 
+    const { username, firstName, lastName, phoneNumber, email, password} = req.body
 
+    // fields check 
+    if(!username || !firstName || !lastName || !phoneNumber || !email || !password) {
+        throw new ApiError(409, "Fields are required to create user!")
+    }
 
     // data validation 
     if(
@@ -22,19 +27,20 @@ const registerUser = asyncHandler(async(req, res) => {
         throw new ApiError(400, "Please enter correct email address!")
     } 
 
+    // avatar file validation 
+    const avatarLocalPath = req.file?.path
+
+    if(!avatarLocalPath) {
+        throw new ApiError(400, "Avatar is required!!")
+    }
+
     // if user already exists 
     const userExists = await User.findOne({
         $or: [{ username }, { email }] 
     })
     if(userExists) {
+        fs.unlinkSync(avatarLocalPath)
         throw new ApiError(409, "User with email / username already exists!")
-    }
-
-    // avatar file validation 
-    const avatarLocalPath = req.files?.avatar[0]?.path 
-
-    if(!avatarLocalPath) {
-        throw new ApiError(400, "Avatar is required!!")
     }
 
 
@@ -53,7 +59,7 @@ const registerUser = asyncHandler(async(req, res) => {
         username: username.toLowerCase(),  
         password, 
         phoneNumber,
-        avatar: avatar?.url,
+        avatar: avatar?.secure_url,
     })
 
     // user creation check 
@@ -71,8 +77,6 @@ const registerUser = asyncHandler(async(req, res) => {
             "User Created succesfully!!"
         )
     ) 
-
-
 })
 
 export { registerUser }
