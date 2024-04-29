@@ -1,7 +1,7 @@
 import { asyncHandler } from "../utils/asyncHandler.js"
 import { ApiError }from "../utils/ApiError.js"
 import { ApiResponse } from "../utils/ApiResponse.js"
-import { isValidEmail } from "../utils/validateEmail.js"
+import { isValidEmail } from "../utils/validateUtil.js"
 import { User } from "../models/user.model.js"
 import { uploadOnCloudinary } from "../utils/cloudinary.js"
 import fs from "fs"
@@ -261,7 +261,7 @@ const updateAccountDetails = asyncHandler(async(req, res) => {
 
     // empty field check 
     if(!username || !firstName || !lastName || !phoneNumber || !email){
-        throw new ApiError("Fields are required to update the details!")
+        throw new ApiError(409, "Fields are required to update the details!")
     }   
 
     // validation check 
@@ -280,23 +280,6 @@ const updateAccountDetails = asyncHandler(async(req, res) => {
         
     } catch(error) {
         throw error 
-    }
-
-    // empty data value check 
-    if(username === "") {
-        username = user.username 
-    }
-    if(email === "") {
-        email = user.email 
-    }
-    if(firstName === "") {
-        firstName = user.firstName
-    }
-    if(lastName === "") {
-        lastName = user.lastName 
-    }
-    if(phoneNumber === "") {
-        phoneNumber = user.phoneNumber
     }
 
     // updating values in db 

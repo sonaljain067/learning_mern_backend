@@ -76,42 +76,6 @@ const updateAnAddress = asyncHandler(async(req, res) => {
         throw new ApiError(409, "Fields are required to update the details!")
     }
 
-    // fields null check 
-    if(!fullName) {
-        fullName = address.fullName
-    }
-    if(!phoneNumber){
-        phoneNumber = address.phoneNumber
-    }
-    if(!addressLine1) {
-        addressLine1 = address.addressLine1
-    }
-    if(!addressLine2) {
-        addressLine2 = address.addressLine2
-    }
-    if(!city) {
-        city = address.city 
-    }
-    if(!state){
-        state = address.state
-    }
-    if(!pincode) {
-        pincode = address.pincode
-    }
-    if(!country){
-        country = address.country
-    }
-    if(!isDefaultAddress) {
-        isDefaultAddress = address.isDefaultAddress
-    }
-    if(!propertyType) {
-        propertyType = address.propertyType
-    }
-    if(!deliveryInstructions){
-        deliveryInstructions = address.deliveryInstructions
-    }
-
-
     // updating address fields
     const updatedAddress = await Address.findByIdAndUpdate(address._id, {
         $set: {
