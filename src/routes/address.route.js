@@ -4,14 +4,16 @@ import { verifyJWT } from "../middlewares/auth.middleware.js"
 
 const router = Router()
 
+router.use(verifyJWT) 
+
 router.route("/")
-    .post(verifyJWT, addAnAddress)
-    .get(verifyJWT, fetchUsersAddresses)
+    .post(addAnAddress)
+    .get(fetchUsersAddresses)
 
 
 router.route("/:addressId")
-    .get(verifyJWT, fetchAnAddress)
-    .patch(verifyJWT, updateAnAddress)
-    .delete(verifyJWT, deleteUserAddress)
+    .get(fetchAnAddress)
+    .patch(updateAnAddress)
+    .delete(deleteUserAddress)
 
 export default router 

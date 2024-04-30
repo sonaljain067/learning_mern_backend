@@ -28,17 +28,12 @@ const registerUser = asyncHandler(async(req, res) => {
     // input from frontend 
     const { username, firstName, lastName, phoneNumber, email, password } = req.body
 
-    // fields check 
-    if(!username || !firstName || !lastName || !phoneNumber || !email || !password) {
-        throw new ApiError(409, "Fields are required to create user!")
-    }
-
     // data validation 
     if(
         [firstName, email, username, password, lastName, phoneNumber].some((field) => field?.trim() === "")
     ) {
         throw new ApiError(400, "All fields are required!!")
-    }
+    }   
 
     const isEmailValid = isValidEmail(email)
     if(!isEmailValid) {
@@ -305,18 +300,21 @@ const updateUserAvatar = asyncHandler(async(req, res) => {
     // fetching avatar 
     const avatarLocalPath= req.file?.path 
 
+    // empty check 
     if(!avatarLocalPath) {
         throw new ApiError(401, "Avatar file is missing!")
     }
 
     // uploading to cloudinary 
-    const avatar = uploadOnCloudinary(avatarLocalPath)
+    const avatar = await uploadOnCloudinary(avatarLocalPath)
 
+    // avatar upload check 
     if(!avatar.secure_url) {
         throw new ApiError(500, "Some error while updating avatar!")
     }
 
-    const updatedUserDetails = User.findByIdAndUpdate(req.user?._id, {
+    // updating logo in db 
+    const updatedUserDetails = await User.findByIdAndUpdate(req.user?._id, {
         $set: {
             avatar: avatar.secure_url
         }
@@ -324,6 +322,7 @@ const updateUserAvatar = asyncHandler(async(req, res) => {
         new: true
     }).select("-password -refreshToken -__v")
 
+    // returing response 
     return res.status(200)
         .json(new ApiResponse(200, updatedUserDetails, "Avatar uploaded succesfully!"))
 
