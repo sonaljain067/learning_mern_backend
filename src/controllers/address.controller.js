@@ -137,56 +137,5 @@ const deleteUserAddress = asyncHandler(async(req, res) => {
     }
 })
 
-const createArtisan = asyncHandler(async(req, res) => {
-    // fetching from frontend 
-    const { description, about, businessName, businessAddress } = req.body 
-    console.log(req.body)
-    // null check 
-    // if([ businessName, businessAddress ].some((field) => field?.trim() === "")) {
-    //     throw new ApiError(409, "Name, Business Name & Address is required!")
-    // } 
 
-    // // duplicate check 
-    // const user = await User.findById(req.user._id)
-
-    // const artisanCheck = await Artisan.find(user)
-    // console.log(artisanCheck)
-    // if(!artisanCheck) {
-    //     throw new ApiError(409, "Artisan with id already exists!")
-    // }
-
-    // // fetching logo file path
-    // const logoLocalPath = ""
-    // if(req.file && req.file?.path) {
-    //     logoLocalPath = req.file?.path 
-    // }
-
-    // // uploading logo on cloudinary 
-    // const logo = await uploadOnCloudinary(logoLocalPath) 
-
-    // // logo upload check  
-    // // if(!logo) {
-    // //     throw new ApiError(500, "Logo cannot be uploaded to cloudinary!")
-    // // }
-
-    // // creating artisan 
-    // const createdArtisan = await Artisan.create({
-    //     user, 
-    //     description, 
-    //     about, 
-    //     businessName,
-    //     businessAddress, 
-    //     logo: logo?.secure_url || ""
-    // })
-
-    // // returing response 
-    // if(!createdArtisan){
-    //     throw new ApiError(500, "Something went wrong while creating artisan!")
-    // }
-
-    return res.status(200)
-        .json(new ApiResponse(200, req.body, "Artisan created succesfully!"))
-
-})
-
-export { addAnAddress, fetchAnAddress, fetchUsersAddresses, deleteUserAddress, updateAnAddress, createArtisan }
+export { addAnAddress, fetchAnAddress, fetchUsersAddresses, deleteUserAddress, updateAnAddress }
