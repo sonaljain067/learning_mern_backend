@@ -34,11 +34,13 @@ const updateCategory = asyncHandler(async(req, res) => {
     // fetching from frontend 
     let { name, description } = req.body 
     const { categoryId } = req.params 
-
+    
+    // null check
     if(!categoryId) {
         throw new ApiError(401, "Category is required to update!")
     }
 
+    // fetching category 
     const category = await Category.findById(categoryId)
 
     // updating category 
@@ -58,7 +60,6 @@ const updateCategory = asyncHandler(async(req, res) => {
 
 const fetchAllCategory = asyncHandler(async(req, res) => {
     // fetching all categories 
-    const filter = {}
     const categories = await Category.find()
 
     // returing response 
@@ -69,6 +70,8 @@ const fetchAllCategory = asyncHandler(async(req, res) => {
 const deleteCategory = asyncHandler(async(req, res) => {
     // fetching from frontend 
     const { categoryId } = req.params 
+
+    // null check 
     if(!categoryId) {
         throw new ApiError(401, "Category is required to delete!")
     }
@@ -87,20 +90,28 @@ const deleteCategory = asyncHandler(async(req, res) => {
 })
 
 const createSubCategory = asyncHandler(async(req, res) => {
-    // fetching from frontend 
+    // fetching from frontend  
     const { categoryId } = req.params 
     const { name, description } = req.body 
 
     // null value check 
     if(!name) {
-        throw new ApiError(409, "Category name is required!")
+        throw new ApiError(409, "Sub Category name is required!")
     }
 
-    // creating subcategory in db 
+    // category exists check 
     const category = await Category.findById(categoryId)
     if(!category) {
         throw new ApiError(409, "Category doesn't exist!")
     }
+
+    // name exists check 
+    const subcategory = await Subcategory.find({ name })
+    if(subcategory) {
+        throw new ApiError(409, "Sub category already exists!")
+    }
+
+    // creating subcategory in db 
     const createdSubCategory = await Subcategory.create({
         name, 
         description,
@@ -116,7 +127,8 @@ const updateSubCategory = asyncHandler(async(req, res) => {
     // fetching from frontend 
     let { name, description } = req.body 
     const { subcategoryId } = req.params 
-
+    
+    // subcategory existing check 
     const subCategory = await Subcategory.findById(subcategoryId)
     if(!subCategory) {
         throw new ApiError(409, "Subcategory to update is missing!")
@@ -140,6 +152,8 @@ const updateSubCategory = asyncHandler(async(req, res) => {
 const fetchCategorySubCategory = asyncHandler(async(req, res) => {
     // fetching from frontend 
     const { categoryId } = req.params
+    
+    // fetching category 
     const category = await Category.findById(categoryId)
 
     // fetching all subcategories of a category 
@@ -147,7 +161,7 @@ const fetchCategorySubCategory = asyncHandler(async(req, res) => {
         category
     })
 
-    // returnign response 
+    // returning response 
     return res.status(200)
         .json(new ApiResponse(200, subCategories, "All categories fetched succesfully!"))
 })
@@ -162,7 +176,6 @@ const deleteSubCategory = asyncHandler(async(req, res) => {
     
     // deleting category 
     const deletedSubCategory = await Subcategory.findByIdAndDelete(subcategoryId) 
-    console.log(deletedSubCategory)
 
     // returing response 
    if(deletedSubCategory){
