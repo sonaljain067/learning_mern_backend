@@ -28,10 +28,10 @@ router.route("/:productId")
     .patch(updateProduct)
     .delete(deleteProduct)
 
-router.route("/:categoryId")
+router.route("/c/:categoryId")
     .get(productByCategory)
 
-router.route("/:subCategoryId")
+router.route("/s/:subCategoryId")
     .get(productBySubCategory)
 
 export default router 
