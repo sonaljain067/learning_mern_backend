@@ -28,6 +28,7 @@ import addressRouter from "./routes/address.route.js"
 import categoryRouter from "./routes/category.route.js"
 import artisanRouter from "./routes/artisan.route.js"
 import productRouter from "./routes/product.route.js"
+import productHelper from "./routes/productHelper.route.js"
 
 // router declaration 
 app.use("/api/v1/users", userRouter)
@@ -39,5 +40,7 @@ app.use("/api/v1/category", categoryRouter)
 app.use("/api/v1/artisan", artisanRouter)
 
 app.use("/api/v1/product", productRouter)
+
+app.use("/api/v1/producthelper", productHelper)
 
 export { app }
