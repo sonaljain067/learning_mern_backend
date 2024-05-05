@@ -15,7 +15,7 @@ const productDetailSchema = new Schema(
             ref: "ProductAttribute"
         },
         price: {
-            type: Float32Array, 
+            type: Number
         },
         qty: {
             type: Number, 
