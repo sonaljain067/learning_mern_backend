@@ -11,7 +11,7 @@ router.route("/wishlist")
     .get(getUserWishlist)
 
 router.route("/wishlist/:productId")
-    .patch(toggleUserWishlist)
+    .post(toggleUserWishlist)
 
 router.route("/feedback/:productId")
     .post(upload.array("images", 3), createRatingReview) 
