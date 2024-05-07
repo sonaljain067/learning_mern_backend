@@ -1,7 +1,8 @@
 import Router from "express" 
 import { upload } from "../middlewares/multer.middleware.js"
 import { verifyJWT } from "../middlewares/auth.middleware.js"
-import { createRatingReview, deleteRatingReview, getProductRatingReviews, getUserAllRatingReviews, getUserWishlist, toggleUserWishlist, updateRatingReview } from "../controllers/userHelper.controller.js"
+import { createRatingReview, deleteRatingReview, deleteWatchHistory, getProductRatingReviews, getUserAllRatingReviews, getUserWishlist, toggleUserWishlist, updateRatingReview } from "../controllers/userHelper.controller.js"
+import { getWatchHistory } from "../controllers/userHelper.controller.js"
 
 const router = Router() 
 
@@ -22,5 +23,11 @@ router.route("/feedback/:productId")
 router.route("/feedback")
     .get(getUserAllRatingReviews)
 
+
+router.route("/watch-history")
+    .get(getWatchHistory)
+    
+router.route("/watch-history/:watchId")
+    .delete(deleteWatchHistory)
 
 export default router 

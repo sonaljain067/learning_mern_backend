@@ -8,6 +8,7 @@ import { Artisan } from "../models/artisan.model.js"
 import { User } from "../models/user.model.js"
 import { Subcategory } from "../models/subcategory.model.js"
 import { Category } from "../models/category.model.js"
+import { WatchHistory } from "../models/watchHistory.model.js"
 
 const addProduct = asyncHandler(async(req, res) => {
     // input from frontend 
@@ -93,13 +94,31 @@ const fetchProduct = asyncHandler(async(req, res) => {
         throw new ApiError(401, "Product is required to fetch!")
     }
 
-    // get product from db 
-    const product = await Product.findById(productId) 
+    // get product & user from db 
+    const user = await req.user 
+    const product = await Product.findById(productId)
 
+    // user already viewed product check 
+    const isAlreadyWatchedByUser = await WatchHistory.findOne({
+        user, 
+        product
+    })
+
+    // deletion of old view of product
+    if(isAlreadyWatchedByUser){
+        await WatchHistory.findByIdAndDelete(isAlreadyWatchedByUser._id)
+    } 
+    
+    // creation of product view by user 
+    await WatchHistory.create({
+        user, 
+        product
+    })
+    
     // returing response
     return res.status(200)
         .json(new ApiResponse(200, product, "Product fetched succesful!"))
-
+     
 })
 
 const fetchAllProducts = asyncHandler(async(req, res) => {

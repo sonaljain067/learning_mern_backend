@@ -7,6 +7,7 @@ import { Product } from "../models/product.model.js"
 import { RatingReview } from "../models/ratingreview.model.js"
 import { User } from "../models/user.model.js"
 import { Wishlist } from "../models/wishlist.model.js"
+import { WatchHistory } from "../models/watchHistory.model.js"
 
 const toggleUserWishlist = asyncHandler(async(req, res) => {
     // input from frontend 
@@ -221,4 +222,39 @@ const getUserAllRatingReviews = asyncHandler(async(req, res) => {
         .json(new ApiResponse(200, usersRatingReview, "User's feedback fetched succesfully!"))
 })
 
-export { toggleUserWishlist, getUserWishlist, createRatingReview, updateRatingReview, deleteRatingReview, getProductRatingReviews, getUserAllRatingReviews }
+const getWatchHistory = asyncHandler(async(req, res) => {
+    // input from frontend
+    const userId = req.user._id
+
+    // fetch user & watch history from db 
+    const user = await User.findById(userId)
+
+    const userWatchHistory = await WatchHistory.find(user)
+
+    // response return 
+    return res.status(200)
+    .json(new ApiResponse(200, userWatchHistory, "Watch history of user fetched succesfully!"))
+})
+
+const deleteWatchHistory = asyncHandler(async(req, res) => {
+    // input from frontend 
+    const { watchId } = req.params 
+    if(!watchId) {
+        throw new ApiError(400, "No watch history selected to remove!")
+    }  
+
+    // deletion of watch history 
+    const deletedWatchHistory = await WatchHistory.findByIdAndDelete(watchId)
+
+    // response return 
+    if(deletedWatchHistory) {
+        return res.status(200)
+            .json(new ApiResponse(200, {}, "Watch history succesfully removed!")) 
+    } else {
+        return res.status(200)
+            .json(new ApiResponse(200, {}, "Watch history already removed!"))
+    }
+})
+
+
+export { toggleUserWishlist, getUserWishlist, createRatingReview, updateRatingReview, deleteRatingReview, getProductRatingReviews, getUserAllRatingReviews, getWatchHistory, deleteWatchHistory }
