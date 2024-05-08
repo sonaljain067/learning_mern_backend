@@ -27,14 +27,14 @@ const productSchema = new Schema(
             type: Schema.Types.ObjectId,
             ref: "Artisan"
         },
-        reviews: {
+        userReviews: {
             type: Number, 
         }, 
-        ratings: {
+        userRatings: {
             type: Number, 
         },
-        sell: {
-            type: Number
+        bestseller: {
+            type: Boolean
         }
     }, {
         timestamps: true 

@@ -9,6 +9,7 @@ import { User } from "../models/user.model.js"
 import { Subcategory } from "../models/subcategory.model.js"
 import { Category } from "../models/category.model.js"
 import { WatchHistory } from "../models/watchHistory.model.js"
+import { ProductDetail } from "../models/productDetail.model.js"
 
 const addProduct = asyncHandler(async(req, res) => {
     // input from frontend 
@@ -122,17 +123,89 @@ const fetchProduct = asyncHandler(async(req, res) => {
 })
 
 const fetchAllProducts = asyncHandler(async(req, res) => {
-    // all products from db fetch 
-    const allProducts = await Product.find()
+    // input from frontend 
+    let { sortType, query, page = 1, limit = 10 } = req.query
 
-    // returing response 
+    // if sortType is not selected 
+    let sortList = ["priceL", "priceH", "bestseller", "rating", "createdAt"]
+    if(!(sortList.includes(sortType))) {
+        sortType = "bestseller" 
+    }
+
+    // selection of sortBy from sortType 
+     // let sort =  [{"bestseller": -1}, {"priceH": -1}, {"priceL": 1}, {"createdAt": -1}, {"rating": 1}]
+    let sortBy = -1
+    if(sortType == "priceL") {
+        sortType = "price"
+        sortBy = 1 
+    } else if(sortBy == "rating") {
+        sortBy = 1
+    } else if(sortType == "priceH") {
+        sortType = "price"
+    }
+    
+    // sortType & sortBy set for sorting 
+    let dynamicSort = {}
+    dynamicSort[sortType] = sortBy
+
+    // aggregation pipeline 
+    const allProductDetails = await ProductDetail.aggregate([
+        // table join 
+        {
+            $lookup: {
+                from: "products",
+                localField: "product",
+                foreignField: "_id",
+                as: "product"
+            }
+        },
+        // unwinding fields in responsse
+        {
+            $unwind: "$product"
+        },
+        {
+            $addFields: {
+                "productId": "$product._id",
+                "name": "$product.name",
+                "coverImage": "$product.coverImage",
+                "bestseller": "$product.bestseller",
+                "userRatings": "$product.userRatings"
+            }
+        },
+        {
+            $project: {
+                productId: 1,
+                _id: 1, 
+                name: 1,
+                price: 1,
+                coverImage: 1, 
+                createdAt: 1,
+                bestseller: 1,
+                userRatings: 1
+            }
+        }, 
+        // searching by name 
+        {
+            $match: {
+                name: {
+                    $regex: query || ""
+                }
+            }
+        },
+        // dynamic sorting 
+        {
+            $sort: dynamicSort
+        }
+    ])
+
+    // response return 
     return res.status(200) 
-        .json(new ApiResponse(200, allProducts, "All Products fetched succesfully!"))
+        .json(new ApiResponse(200, allProductDetails, "All Products fetched succesfully!"))
 })
 
 const updateProduct = asyncHandler(async(req, res) => {
     // input from frontend 
-    let { subCategoryName, name, description } = req.body 
+    let { subCategoryName, name, description, bestseller, userRatings, userReviews } = req.body 
 
     // product Id check 
     let { productId } = req.params 
@@ -147,7 +220,7 @@ const updateProduct = asyncHandler(async(req, res) => {
     }
 
     // empty value check 
-    if(!(subCategoryName || name || description)){
+    if(!(subCategoryName || name || description || bestseller || userRatings || userReviews)){
         throw new ApiError(409, "Details are required to update product!")
     }
 
@@ -225,7 +298,10 @@ const updateProduct = asyncHandler(async(req, res) => {
             name, 
             description,
             coverImage, 
-            images
+            images,
+            bestseller, 
+            userRatings,
+            userReviews
         }
     }, {
         new: true
