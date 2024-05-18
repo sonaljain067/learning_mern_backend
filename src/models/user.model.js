@@ -39,11 +39,10 @@ const userSchema = new Schema(
         },
         password: {
             type: String,
-            required: [true, 'Pass']
+            required: [true, 'Password is missing!']
         },
         avatar: {
-            type: String, 
-            required: true 
+            type: String
         },
         refreshToken: {
             type: String 

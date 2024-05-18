@@ -43,24 +43,23 @@ const registerUser = asyncHandler(async(req, res) => {
     // avatar file validation 
     const avatarLocalPath = req.file?.path
 
-    if(!avatarLocalPath) {
-        throw new ApiError(400, "Avatar is required!!")
+    let avatar; 
+    if(avatarLocalPath){
+        // uploading avatar on cloudinary 
+        avatar = await uploadOnCloudinary(avatarLocalPath) 
+    
+        if(!avatar){
+            throw new ApiError(500, "Avatar cannot be uploaded to cloudinary!")
+        }
     }
 
     // if user already exists 
     const userExists = await User.findOne({
-        $or: [{ username }, { email }] 
+        $or: [{ username }, { email }, { phoneNumber }] 
     })
     if(userExists) {
-        fs.unlinkSync(avatarLocalPath)
-        throw new ApiError(409, "User with email / username already exists!")
-    }
-
-    // uploading avatar on cloudinary 
-    const avatar = await uploadOnCloudinary(avatarLocalPath) 
-    
-    if(!avatar){
-        throw new ApiError(500, "Avatar cannot be uploaded to cloudinary!")
+        if(avatar) fs.unlinkSync(avatarLocalPath)
+        throw new ApiError(409, "User with email / username / phone number already exists!")
     }
 
     // creating user in db 
@@ -75,7 +74,8 @@ const registerUser = asyncHandler(async(req, res) => {
     })
 
     // user creation check 
-    const createdUser = await User.findById(user._id).select("-password -refreshToken")
+    const createdUser = await User.findById(user._id)
+        .select("-password -refreshToken -__v -createdAt -updatedAt")
 
     if(!createdUser){
         throw new ApiError(500, "Something went wrong while registering the user!")
@@ -130,7 +130,7 @@ const loginUser = asyncHandler(async(req, res) => {
     // generating access & refresh token 
     const { accessToken, refreshToken } = await generateAccessAndRefreshToken(user._id)
 
-    const loggedInUser = await User.findOne(user._id).select("-password -refreshToken -__v")
+    const loggedInUser = await User.findOne(user._id).select("-password -refreshToken -__v -createdAt -updatedAt")
 
     // sending cookies & response 
     const options = {
@@ -288,7 +288,7 @@ const updateAccountDetails = asyncHandler(async(req, res) => {
         }
     }, {
         new: true 
-    }).select("-password -refreshToken -__v")
+    }).select("-password -refreshToken -__v -createdAt -updatedAt")
 
     // returning success response 
     return res.status(200)
@@ -320,7 +320,7 @@ const updateUserAvatar = asyncHandler(async(req, res) => {
         }
     }, {
         new: true
-    }).select("-password -refreshToken -__v")
+    }).select("-password -refreshToken -__v -createdAt -updatedAt")
 
     // returing response 
     return res.status(200)
