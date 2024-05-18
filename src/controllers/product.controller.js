@@ -149,41 +149,16 @@ const fetchAllProducts = asyncHandler(async(req, res) => {
     dynamicSort[sortType] = sortBy
 
     // aggregation pipeline 
-    const allProductDetails = await ProductDetail.aggregate([
+    const allProductDetails = await Product.aggregate([
         // table join 
         {
             $lookup: {
-                from: "products",
-                localField: "product",
-                foreignField: "_id",
-                as: "product"
+                from: "productdetails",
+                localField: "_id",
+                foreignField: "product",
+                as: "productDet"
             }
         },
-        // unwinding fields in responsse
-        {
-            $unwind: "$product"
-        },
-        {
-            $addFields: {
-                "productId": "$product._id",
-                "name": "$product.name",
-                "coverImage": "$product.coverImage",
-                "bestseller": "$product.bestseller",
-                "userRatings": "$product.userRatings"
-            }
-        },
-        {
-            $project: {
-                productId: 1,
-                _id: 1, 
-                name: 1,
-                price: 1,
-                coverImage: 1, 
-                createdAt: 1,
-                bestseller: 1,
-                userRatings: 1
-            }
-        }, 
         // searching by name 
         {
             $match: {
