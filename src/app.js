@@ -30,6 +30,7 @@ import artisanRouter from "./routes/artisan.route.js"
 import productRouter from "./routes/product.route.js"
 import productHelper from "./routes/productHelper.route.js"
 import userHelperRouter from "./routes/userHelper.route.js"
+import cartRouter from "./routes/cart.route.js"
 
 // router declaration 
 app.use("/api/v1/users", userRouter)
@@ -45,5 +46,7 @@ app.use("/api/v1/product", productRouter)
 app.use("/api/v1/productHelper", productHelper)
 
 app.use("/api/v1/userHelper", userHelperRouter)
+
+app.use("/api/v1/order", orderRouter)
 
 export { app }
